@@ -17,8 +17,31 @@ import {Socket} from "phoenix"
 import NProgress from "nprogress"
 import {LiveSocket} from "phoenix_live_view"
 
+window.hooks = {
+  LoadFile: {
+    mounted() {
+      const fileRef = document.createElement("script")
+      const fileEvent = this.el.getAttribute("file-event")
+      const filePath = this.el.getAttribute("file-path")
+      const fileType = this.el.getAttribute("file-type")
+      fileRef.setAttribute("src", filePath)
+      fileRef.setAttribute("type", fileType)
+      const head = document.getElementsByTagName("head")[0]
+      const headNodes = Array.prototype.slice.call(head.childNodes)
+      if (!headNodes.find((node) => node.src && node.src.endsWith(filePath))) {
+        console.log("Appending File")
+        head.appendChild(fileRef)
+        window.hookContext = this
+      } else if (fileEvent) {
+        console.log("File Appended, Pushing Event")
+        this.pushEvent(fileEvent)
+      }
+    },
+  },
+};
+
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
-let liveSocket = new LiveSocket("/live", Socket, {params: {_csrf_token: csrfToken}})
+let liveSocket = new LiveSocket("/live", Socket, {hooks: hooks, params: {_csrf_token: csrfToken}})
 
 // Show progress bar on live navigation and form submits
 window.addEventListener("phx:page-loading-start", info => NProgress.start())

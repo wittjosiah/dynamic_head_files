@@ -1,0 +1,11 @@
+<div
+  file-event="script_loaded"
+  file-path="<%= Routes.static_path(@socket, "/js/another.js") %>"
+  file-type="text/javascript"
+  phx-hook="LoadFile"
+>
+</div>
+
+<%= if assigns[:loaded] do %>
+  <div phx-hook="Another">Dynamic Script Loaded!</div>
+<% end %>
